@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>노아토익 타이머</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e8a0b4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="노아토익">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #FAF7F4;
+  --surface: #FFFFFF;
+  --surface-2: #F5F0EC;
+  --surface-3: #EBE5DF;
+  --accent: #E8A0B4;
+  --accent-light: #F0C4D0;
+  --accent-dark: #D4849B;
+  --accent-glow: rgba(232, 160, 180, 0.25);
+  --accent-bg: rgba(232, 160, 180, 0.08);
+  --dot-dark: #3D2F2F;
+  --text: #3D2F2F;
+  --text-dim: #7A6B6B;
+  --text-muted: #B8A8A8;
+  --danger: #E85A6B;
+  --success: #6BAE8A;
+  --warning: #E8C06B;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow-sm: 0 2px 8px rgba(61,47,47,0.04);
+  --shadow-md: 0 4px 20px rgba(61,47,47,0.06);
+}
+
+html, body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
+
+.app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.header {
+  padding: 20px 24px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 38px;
+  height: 38px;
+  background: var(--surface);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1.5px solid var(--surface-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.logo-icon::before {
+  content: '';
+  width: 10px; height: 10px;
+  background: var(--dot-dark);
+  border-radius: 50%;
+  position: absolute;
+  top: 5px; right: 5px;
+}
+
+.logo-icon::after {
+  content: '';
+  width: 7px; height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 7px; left: 7px;
+}
+
+.logo-icon span {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--accent);
+  position: relative;
+  z-index: 1;
+  margin-top: -2px;
+}
+
+.logo-text {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.logo-text span {
+  color: var(--accent);
+}
+
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1.5px solid var(--surface-3);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.icon-btn:hover { background: var(--surface-2); color: var(--text); }
+.icon-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+.mode-selector {
+  padding: 0 24px;
+  margin-bottom: 16px;
+}
+
+.mode-tabs {
+  display: flex;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 4px;
+  gap: 4px;
+  border: 1.5px solid var(--surface-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 11px 16px;
+  border-radius: 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.mode-tab.active {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.timer-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 24px;
+  overflow-y: auto;
+}
+
+.tips-bar {
+  padding: 10px 16px;
+  background: var(--accent-bg);
+  border: 1px solid rgba(232,160,180,0.15);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--accent-dark);
+  font-weight: 600;
+  margin-bottom: 16px;
+  width: 100%;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* FLOW STEPPER */
+.flow-stepper {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.flow-steps {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.flow-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 4px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 2px solid var(--surface-3);
+  transition: all 0.35s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.flow-step .step-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  transition: all 0.35s;
+}
+
+.flow-step .step-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+  transition: color 0.3s;
+}
+
+.flow-step .step-time {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.flow-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 16px;
+  font-weight: 700;
+  transition: color 0.3s;
+}
+
+.flow-arrow.passed { color: var(--success); }
+.flow-arrow.current-arrow { color: var(--accent); }
+
+.flow-step.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow), var(--shadow-md);
+  background: white;
+}
+
+.flow-step.active .step-icon {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.flow-step.active .step-name { color: var(--accent-dark); font-weight: 800; }
+
+.flow-step.done {
+  border-color: rgba(107,174,138,0.4);
+  background: rgba(107,174,138,0.04);
+}
+
+.flow-step.done .step-icon { background: var(--success); color: white; }
+.flow-step.done .step-name { color: var(--success); }
+
+.current-part-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  margin-bottom: 4px;
+}
+
+.current-part-name {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.timer-ring-container {
+  position: relative;
+  width: 230px;
+  height: 230px;
+  margin-bottom: 24px;
+}
+
+.timer-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-ring-bg { fill: none; stroke: var(--surface-3); stroke-width: 7; }
+
+.timer-ring-progress {
+  fill: none;
+  stroke: url(#timerGradient);
+  stroke-width: 7;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.timer-ring-glow {
+  fill: none;
+  stroke: url(#timerGradient);
+  stroke-width: 14;
+  stroke-linecap: round;
+  opacity: 0.12;
+  filter: blur(8px);
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.timer-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.timer-time {
+  font-family: 'Space Mono', monospace;
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.timer-time.warning { color: var(--warning); }
+.timer-time.danger { color: var(--danger); animation: pulse 1s infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.timer-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.timer-sub.overtime {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.ctrl-btn {
+  flex: 1;
+  height: 52px;
+  border-radius: var(--radius);
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ctrl-btn.primary {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.ctrl-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(232,160,180,0.35);
+}
+
+.ctrl-btn.secondary {
+  background: var(--surface);
+  color: var(--text-dim);
+  border: 1.5px solid var(--surface-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.ctrl-btn.secondary:hover { background: var(--surface-2); color: var(--text); }
+
+.ctrl-btn.danger-btn {
+  background: rgba(232,90,107,0.08);
+  color: var(--danger);
+  border: 1px solid rgba(232,90,107,0.2);
+}
+
+.ctrl-btn.skip-btn {
+  background: var(--surface);
+  color: var(--accent-dark);
+  border: 1.5px solid rgba(232,160,180,0.3);
+  box-shadow: var(--shadow-sm);
+}
+
+.ctrl-btn.skip-btn:hover { background: var(--accent-bg); }
+
+.total-remaining {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--surface-3);
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+}
+
+.total-label { font-size: 13px; color: var(--text-dim); font-weight: 600; }
+
+.total-time {
+  font-family: 'Space Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent-dark);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(61,47,47,0.25);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  background: var(--surface);
+  border-radius: 28px 28px 0 0;
+  padding: 24px;
+  overflow-y: auto;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -10px 40px rgba(61,47,47,0.1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-handle {
+  width: 40px; height: 4px;
+  background: var(--surface-3);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+.modal h2 { font-size: 20px; font-weight: 800; margin-bottom: 24px; color: var(--text); }
+
+.setting-group { margin-bottom: 18px; }
+
+.setting-group label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px; font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.setting-group label span.unit { font-size: 12px; color: var(--text-muted); }
+
+.time-input-row { display: flex; align-items: center; gap: 8px; }
+
+.time-input {
+  flex: 1; height: 46px;
+  background: var(--surface-2);
+  border: 2px solid var(--surface-3);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 16px;
+  text-align: center;
+  outline: none;
+  -moz-appearance: textfield;
+  transition: border-color 0.2s;
+}
+
+.time-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.time-input:focus { border-color: var(--accent); }
+
+.time-input-label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+
+.modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-top: 1px solid var(--surface-2);
+}
+
+.toggle-row span { font-size: 14px; color: var(--text-dim); font-weight: 600; }
+
+.toggle {
+  width: 48px; height: 28px;
+  background: var(--surface-3);
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle.on { background: var(--accent); }
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 22px; height: 22px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.toggle.on::after { transform: translateX(20px); }
+
+.completion-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+  flex: 1;
+}
+
+.completion-screen.show { display: flex; }
+
+.completion-emoji { font-size: 64px; margin-bottom: 16px; animation: bounce 0.6s ease; }
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.completion-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+.completion-sub { font-size: 14px; color: var(--text-dim); margin-bottom: 32px; font-weight: 500; }
+
+.stats-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--surface-3);
+  padding: 18px;
+  margin-bottom: 16px;
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+}
+
+.stats-card h3 { font-size: 14px; font-weight: 700; color: var(--text-dim); margin-bottom: 14px; }
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.stat-row:last-child { border-bottom: none; }
+.stat-label { font-size: 13px; color: var(--text-dim); font-weight: 600; }
+.stat-value { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; }
+.stat-value.over { color: var(--danger); }
+.stat-value.under { color: var(--success); }
+
+.hidden { display: none !important; }
+
+@media (max-height: 700px) {
+  .timer-ring-container { width: 180px; height: 180px; }
+  .timer-time { font-size: 38px; }
+  .current-part-name { font-size: 17px; margin-bottom: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon"><span>N</span></div>
+      <div class="logo-text">노아토익 <span>타이머</span></div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="btnSound" title="사운드">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.08"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSettings" title="설정">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="mode-selector">
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="standard" onclick="setMode('standard')">📝 RC START 75분</button>
+      <button class="mode-tab" data-mode="custom" onclick="setMode('custom')">🎯 맞춤 설정</button>
+    </div>
+  </div>
+
+  <div class="timer-body" id="timerBody">
+    <div class="tips-bar" id="tipsBar">💡 PART5 풀 때 한 문제에 20초를 넘기지 않아야 합니다.</div>
+
+    <div class="flow-stepper">
+      <div class="flow-steps" id="flowSteps"></div>
+    </div>
+
+    <div class="current-part-label" id="partLabel">READY</div>
+    <div class="current-part-name" id="partName">시작을 눌러주세요</div>
+
+    <div class="timer-ring-container">
+      <svg class="timer-ring" viewBox="0 0 240 240">
+        <defs>
+          <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#E8A0B4"/>
+            <stop offset="100%" style="stop-color:#D4849B"/>
+          </linearGradient>
+        </defs>
+        <circle class="timer-ring-glow" cx="120" cy="120" r="108" id="ringGlow"/>
+        <circle class="timer-ring-bg" cx="120" cy="120" r="108"/>
+        <circle class="timer-ring-progress" cx="120" cy="120" r="108" id="ringProgress"/>
+      </svg>
+      <div class="timer-center">
+        <div class="timer-time" id="timerDisplay">00:00</div>
+        <div class="timer-sub" id="timerSub">준비</div>
+      </div>
+    </div>
+
+    <div class="controls" id="mainControls">
+      <button class="ctrl-btn primary" onclick="startTimer()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>
+        시작
+      </button>
+    </div>
+
+    <div class="controls hidden" id="runningControls">
+      <button class="ctrl-btn secondary" onclick="pauseTimer()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        일시정지
+      </button>
+      <button class="ctrl-btn skip-btn" onclick="skipPart()">
+        다음 파트 →
+      </button>
+    </div>
+
+    <div class="controls hidden" id="pausedControls">
+      <button class="ctrl-btn primary" onclick="resumeTimer()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>
+        계속
+      </button>
+      <button class="ctrl-btn danger-btn" onclick="resetTimer()">
+        초기화
+      </button>
+    </div>
+
+    <div class="total-remaining">
+      <span class="total-label" id="partRemainingLabel">현재 파트 남은 시간</span>
+      <span class="total-time" id="totalRemaining">--:--</span>
+    </div>
+  </div>
+
+  <div class="completion-screen" id="completionScreen">
+    <div class="completion-emoji">🎉</div>
+    <div class="completion-title">수고했어요!</div>
+    <div class="completion-sub" id="completionSub">RC 풀이가 완료되었습니다</div>
+    <div class="stats-card" id="statsCard"></div>
+    <div class="controls" style="width:100%; padding: 0 24px;">
+      <button class="ctrl-btn primary" onclick="resetTimer()" style="width:100%;">다시 시작</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>⏱ 시간 설정</h2>
+    <div class="setting-group">
+      <label>Part 5 (문법/어휘) <span class="unit">분</span></label>
+      <div class="time-input-row">
+        <input type="number" class="time-input" id="inputP5" min="0" max="30" value="10">
+        <span class="time-input-label">분</span>
+      </div>
+    </div>
+    <div class="setting-group">
+      <label>Part 6 (빈칸 완성) <span class="unit">분</span></label>
+      <div class="time-input-row">
+        <input type="number" class="time-input" id="inputP6" min="0" max="30" value="8">
+        <span class="time-input-label">분</span>
+      </div>
+    </div>
+    <div class="setting-group">
+      <label>Part 7 (독해) <span class="unit">분</span></label>
+      <div class="time-input-row">
+        <input type="number" class="time-input" id="inputP7" min="0" max="90" value="52">
+        <span class="time-input-label">분</span>
+      </div>
+    </div>
+    <div class="setting-group">
+      <label>마킹 시간 <span class="unit">분</span></label>
+      <div class="time-input-row">
+        <input type="number" class="time-input" id="inputMarking" min="0" max="15" value="5">
+        <span class="time-input-label">분</span>
+      </div>
+    </div>
+    <div class="toggle-row">
+      <span>📳 진동 알림</span>
+      <div class="toggle on" id="toggleVibrate" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="ctrl-btn secondary" style="flex:1" onclick="closeSettings()">취소</button>
+      <button class="ctrl-btn primary" style="flex:1" onclick="saveSettings()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MODES = {
+  standard: { parts: [
+    { name: 'Part 5', sub: '문법 · 어휘 30문항', time: 10 },
+    { name: 'Part 6', sub: '빈칸 완성 16문항', time: 8 },
+    { name: 'Part 7', sub: '독해 54문항', time: 52 },
+    { name: '마킹', sub: 'OMR 마킹 타임', time: 5 },
+  ]},
+  custom: { parts: [
+    { name: 'Part 5', sub: '문법 · 어휘 30문항', time: 10 },
+    { name: 'Part 6', sub: '빈칸 완성 16문항', time: 8 },
+    { name: 'Part 7', sub: '독해 54문항', time: 52 },
+    { name: '마킹', sub: 'OMR 마킹 타임', time: 5 },
+  ]},
+};
+
+const PART_TIPS = {
+  'Part 5': '💡 PART5 풀 때 한 문제에 20초를 넘기지 않아야 합니다.',
+  'Part 6': '💡 PART6 풀 때 한 문제에 30초를 넘기지 않아야 합니다.',
+  'Part 7': '💡 PART7 풀 때 한 문제에 1분을 넘기지 않아야 합니다.',
+  '마킹': '💡 마킹 실수 주의! 답안지 번호를 꼭 확인하세요.',
+};
+
+let currentMode = 'standard';
+let parts = MODES.standard.parts.map(p => ({...p}));
+let currentPartIndex = 0;
+let timeRemaining = 0;
+let totalTimeRemaining = 0;
+let timerInterval = null;
+let isRunning = false;
+let isPaused = false;
+let soundEnabled = true;
+let partResults = [];
+let wakeLock = null;
+let noSleepVideo = null;
+
+// No-sleep video (for Galaxy)
+(function initNoSleep() {
+  noSleepVideo = document.createElement('video');
+  noSleepVideo.setAttribute('playsinline', '');
+  noSleepVideo.setAttribute('muted', '');
+  noSleepVideo.setAttribute('loop', '');
+  noSleepVideo.muted = true;
+  noSleepVideo.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.001;pointer-events:none;z-index:-9999;';
+  try {
+    const c = document.createElement('canvas');
+    c.width = 2; c.height = 2;
+    const ctx = c.getContext('2d');
+    ctx.fillRect(0,0,2,2);
+    noSleepVideo.srcObject = c.captureStream(1);
+    setInterval(() => { ctx.fillRect(0,0,2,2); }, 1000);
+  } catch(e) {
+    noSleepVideo.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAA';
+  }
+  document.body.appendChild(noSleepVideo);
+})();
+
+function playNoSleepVideo() { if (noSleepVideo) { noSleepVideo.muted = true; noSleepVideo.play().catch(()=>{}); } }
+function pauseNoSleepVideo() { if (noSleepVideo) noSleepVideo.pause(); }
+
+async function requestWakeLockAPI() {
+  try { if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } } catch(e) {}
+}
+function releaseWakeLockAPI() { if (wakeLock) { wakeLock.release(); wakeLock = null; } }
+
+function requestWakeLock() { playNoSleepVideo(); requestWakeLockAPI(); }
+function releaseWakeLock() { pauseNoSleepVideo(); releaseWakeLockAPI(); }
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && isRunning && !isPaused) { playNoSleepVideo(); requestWakeLockAPI(); }
+});
+
+const circumference = 2 * Math.PI * 108;
+const g = id => document.getElementById(id);
+
+const $ring = g('ringProgress'), $ringGlow = g('ringGlow');
+const $display = g('timerDisplay'), $sub = g('timerSub');
+const $partLabel = g('partLabel'), $partName = g('partName');
+const $flowSteps = g('flowSteps'), $totalRemaining = g('totalRemaining');
+const $mainControls = g('mainControls'), $runningControls = g('runningControls');
+const $pausedControls = g('pausedControls');
+const $timerBody = g('timerBody'), $completion = g('completionScreen');
+const $tipsBar = g('tipsBar');
+
+$ring.style.strokeDasharray = circumference;
+$ring.style.strokeDashoffset = 0;
+$ringGlow.style.strokeDasharray = circumference;
+$ringGlow.style.strokeDashoffset = 0;
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  if (mode === 'custom') openSettings();
+  parts = MODES[mode].parts.map(p => ({...p}));
+  updateTabLabel();
+  resetTimer();
+}
+
+function updateTabLabel() {
+  const total = parts.reduce((s, p) => s + p.time, 0);
+  document.querySelector('[data-mode="standard"]').textContent = '📝 RC START ' + total + '분';
+}
+
+function buildFlowStepper() {
+  $flowSteps.innerHTML = '';
+  parts.forEach((p, i) => {
+    const step = document.createElement('div');
+    step.className = 'flow-step';
+    if (isRunning && i === currentPartIndex) step.classList.add('active');
+    if (partResults[i]) step.classList.add('done');
+    const icon = p.name === '마킹' ? '✏️' : String(i + 5);
+    step.innerHTML = '<div class="step-icon">' + (partResults[i] ? '✓' : icon) + '</div><div class="step-name">' + p.name + '</div><div class="step-time">' + p.time + '분</div>';
+    $flowSteps.appendChild(step);
+    if (i < parts.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'flow-arrow';
+      if (partResults[i]) arrow.classList.add('passed');
+      if (isRunning && i === currentPartIndex) arrow.classList.add('current-arrow');
+      arrow.textContent = '→';
+      $flowSteps.appendChild(arrow);
+    }
+  });
+}
+
+function fmt(sec) {
+  const neg = sec < 0; sec = Math.abs(sec);
+  return (neg ? '-' : '') + String(Math.floor(sec/60)).padStart(2,'0') + ':' + String(sec%60).padStart(2,'0');
+}
+
+function updateDisplay() {
+  $display.textContent = fmt(totalTimeRemaining);
+  const totalSec = parts.reduce((s, p) => s + p.time * 60, 0);
+  const progress = totalSec > 0 ? Math.max(0, 1 - totalTimeRemaining / totalSec) : 0;
+  const offset = circumference * (1 - progress);
+  $ring.style.strokeDashoffset = offset;
+  $ringGlow.style.strokeDashoffset = offset;
+
+  const $partLabel2 = g('partRemainingLabel');
+  if (timeRemaining < 0) {
+    $totalRemaining.textContent = '+' + fmt(Math.abs(timeRemaining));
+    $totalRemaining.style.color = 'var(--danger)';
+    $partLabel2.textContent = '⚠️ 현재 파트 초과시간';
+    $partLabel2.style.color = 'var(--danger)';
+  } else {
+    $totalRemaining.textContent = fmt(timeRemaining);
+    $totalRemaining.style.color = 'var(--accent-dark)';
+    $partLabel2.textContent = '현재 파트 남은 시간';
+    $partLabel2.style.color = '';
+  }
+
+  $display.classList.remove('warning', 'danger');
+  if (totalTimeRemaining <= 0) $display.classList.add('danger');
+  else if (totalTimeRemaining <= 300) $display.classList.add('danger');
+  else if (totalTimeRemaining <= 600) $display.classList.add('warning');
+
+  $sub.classList.remove('overtime');
+  if (isPaused) $sub.textContent = '일시정지';
+  else if (isRunning) {
+    if (timeRemaining < 0) {
+      $sub.textContent = '⚠️ ' + parts[currentPartIndex].name + ' 초과시간 +' + fmt(Math.abs(timeRemaining));
+      $sub.classList.add('overtime');
+    } else {
+      $sub.textContent = parts[currentPartIndex].name + ' 남은 시간 ' + fmt(timeRemaining);
+    }
+  } else {
+    $sub.textContent = '준비';
+  }
+}
+
+function showTip() {
+  const partName = isRunning ? parts[currentPartIndex].name : 'Part 5';
+  $tipsBar.textContent = PART_TIPS[partName] || PART_TIPS['Part 5'];
+}
+
+// Audio — only start and finish sounds, NO mid-timer beeps
+function playStartSound() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [523, 659].forEach((freq, i) => {
+      const o = ctx.createOscillator(), ga = ctx.createGain();
+      o.connect(ga); ga.connect(ctx.destination);
+      o.type = 'sine'; o.frequency.value = freq;
+      ga.gain.setValueAtTime(0.3, ctx.currentTime + i*0.12);
+      ga.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i*0.12 + 0.15);
+      o.start(ctx.currentTime + i*0.12); o.stop(ctx.currentTime + i*0.12 + 0.2);
+    });
+  } catch(e) {}
+}
+
+function playFinishSound() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [
+      { freq: 523, time: 0, dur: 0.15 },
+      { freq: 659, time: 0.15, dur: 0.15 },
+      { freq: 784, time: 0.30, dur: 0.15 },
+      { freq: 1047, time: 0.45, dur: 0.35 },
+      { freq: 784, time: 0.85, dur: 0.12 },
+      { freq: 880, time: 0.97, dur: 0.12 },
+      { freq: 1047, time: 1.09, dur: 0.12 },
+      { freq: 1319, time: 1.21, dur: 0.45 },
+    ];
+    notes.forEach(n => {
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'triangle'; osc.frequency.value = n.freq;
+      gain.gain.setValueAtTime(0.5, ctx.currentTime + n.time);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + n.time + n.dur);
+      osc.start(ctx.currentTime + n.time); osc.stop(ctx.currentTime + n.time + n.dur + 0.05);
+    });
+    const bass = ctx.createOscillator(), bg = ctx.createGain();
+    bass.connect(bg); bg.connect(ctx.destination);
+    bass.type = 'sine'; bass.frequency.value = 130;
+    bg.gain.setValueAtTime(0.6, ctx.currentTime);
+    bg.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    bass.start(ctx.currentTime); bass.stop(ctx.currentTime + 0.55);
+  } catch(e) {}
+}
+
+function vibrate(p) {
+  if (g('toggleVibrate')?.classList.contains('on') && navigator.vibrate) navigator.vibrate(p);
+}
+
+function startTimer() {
+  partResults = [];
+  currentPartIndex = 0;
+  totalTimeRemaining = parts.reduce((s, p) => s + p.time * 60, 0);
+  loadPart(0);
+  isRunning = true; isPaused = false;
+  requestWakeLock();
+  $mainControls.classList.add('hidden');
+  $runningControls.classList.remove('hidden');
+  $pausedControls.classList.add('hidden');
+  $completion.classList.remove('show');
+  $timerBody.classList.remove('hidden');
+  buildFlowStepper(); showTip();
+  timerInterval = setInterval(tick, 1000);
+  playStartSound();
+}
+
+function loadPart(i) {
+  if (parts[i].time === 0) {
+    partResults.push({ name: parts[i].name, allocated: 0, used: 0 });
+    if (i >= parts.length - 1) { finishTimer(); return; }
+    loadPart(i + 1);
+    return;
+  }
+  currentPartIndex = i;
+  timeRemaining = parts[i].time * 60;
+  $partLabel.textContent = i < 3 ? 'PART ' + (i + 5) : 'MARKING';
+  $partName.textContent = parts[i].name + (parts[i].name === '마킹' ? ' 타임' : '');
+  updateDisplay(); buildFlowStepper(); showTip();
+}
+
+// tick: no mid-timer beeps, but auto-advances to next part at 0
+function tick() {
+  if (!isRunning || isPaused) return;
+  timeRemaining--;
+  totalTimeRemaining--;
+  // Auto-advance when part time runs out
+  if (timeRemaining <= 0) {
+    nextPart();
+    return;
+  }
+  updateDisplay();
+}
+
+function nextPart() {
+  partResults.push({ name: parts[currentPartIndex].name, allocated: parts[currentPartIndex].time * 60, used: parts[currentPartIndex].time * 60 - timeRemaining });
+  if (currentPartIndex >= parts.length - 1) { finishTimer(); return; }
+  loadPart(currentPartIndex + 1);
+}
+
+function skipPart() { if (isRunning) nextPart(); }
+
+function pauseTimer() {
+  isPaused = true;
+  releaseWakeLock();
+  $runningControls.classList.add('hidden');
+  $pausedControls.classList.remove('hidden');
+  updateDisplay();
+}
+
+function resumeTimer() {
+  isPaused = false;
+  requestWakeLock();
+  $pausedControls.classList.add('hidden');
+  $runningControls.classList.remove('hidden');
+  updateDisplay();
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  isRunning = false; isPaused = false;
+  releaseWakeLock();
+  currentPartIndex = 0; partResults = [];
+  const total = parts.reduce((s, p) => s + p.time * 60, 0);
+  totalTimeRemaining = total; timeRemaining = 0;
+  $display.textContent = fmt(total);
+  $display.classList.remove('warning', 'danger');
+  $sub.textContent = '준비'; $sub.classList.remove('overtime');
+  $partLabel.textContent = 'READY';
+  $partName.textContent = '시작을 눌러주세요';
+  $totalRemaining.textContent = '--:--';
+  $totalRemaining.style.color = 'var(--accent-dark)';
+  g('partRemainingLabel').textContent = '현재 파트 남은 시간';
+  g('partRemainingLabel').style.color = '';
+  $ring.style.strokeDashoffset = 0;
+  $ringGlow.style.strokeDashoffset = 0;
+  $mainControls.classList.remove('hidden');
+  $runningControls.classList.add('hidden');
+  $pausedControls.classList.add('hidden');
+  $completion.classList.remove('show');
+  $timerBody.classList.remove('hidden');
+  buildFlowStepper();
+}
+
+function finishTimer() {
+  clearInterval(timerInterval);
+  isRunning = false; isPaused = false;
+  releaseWakeLock();
+  playFinishSound(); vibrate([500, 200, 500]);
+  $timerBody.classList.add('hidden');
+  $completion.classList.add('show');
+  const totalUsed = partResults.reduce((s, r) => s + r.used, 0);
+  const totalAllocated = partResults.reduce((s, r) => s + r.allocated, 0);
+  let h = '<h3>📊 파트별 분석</h3>';
+  partResults.forEach(r => {
+    const d = r.used - r.allocated;
+    h += '<div class="stat-row"><span class="stat-label">' + r.name + '</span><span class="stat-value ' + (d>0?'over':'under') + '">' + fmt(r.used) + ' <span style="font-size:11px;opacity:0.5">(' + (d>0?'+':'') + fmt(d) + ')</span></span></div>';
+  });
+  h += '<div class="stat-row" style="border-top:1px solid var(--surface-3);margin-top:8px;padding-top:12px;"><span class="stat-label" style="font-weight:800;">총 소요 시간</span><span class="stat-value">' + fmt(totalUsed) + '</span></div>';
+  const diff = totalUsed - totalAllocated;
+  g('completionSub').textContent = diff <= 0 ? fmt(Math.abs(diff)) + ' 남기고 완료! 여유 있게 잘했어요 👏' : fmt(diff) + ' 초과! 시간 관리 연습이 필요해요 💪';
+  g('statsCard').innerHTML = h;
+}
+
+function openSettings() {
+  const m = MODES[currentMode];
+  g('inputP5').value = m.parts[0].time;
+  g('inputP6').value = m.parts[1].time;
+  g('inputP7').value = m.parts[2].time;
+  g('inputMarking').value = m.parts[3].time;
+  g('settingsModal').classList.add('open');
+}
+
+function closeSettings() { g('settingsModal').classList.remove('open'); }
+
+function saveSettings() {
+  const val = v => { const n = parseInt(v); return isNaN(n) ? 0 : Math.max(0, n); };
+  const p5 = val(g('inputP5').value), p6 = val(g('inputP6').value);
+  const p7 = val(g('inputP7').value), mk = val(g('inputMarking').value);
+  MODES.custom.parts = [
+    { name: 'Part 5', sub: '문법 · 어휘 30문항', time: p5 },
+    { name: 'Part 6', sub: '빈칸 완성 16문항', time: p6 },
+    { name: 'Part 7', sub: '독해 54문항', time: p7 },
+    { name: '마킹', sub: 'OMR 마킹 타임', time: mk },
+  ];
+  parts = MODES.custom.parts.map(p => ({...p}));
+  closeSettings();
+  currentMode = 'custom';
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === 'custom'));
+  resetTimer();
+}
+
+g('btnSound').addEventListener('click', function() { soundEnabled = !soundEnabled; this.classList.toggle('active', soundEnabled); });
+g('btnSettings').addEventListener('click', openSettings);
+g('settingsModal').addEventListener('click', function(e) { if (e.target === this) closeSettings(); });
+
+buildFlowStepper(); resetTimer(); showTip();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
