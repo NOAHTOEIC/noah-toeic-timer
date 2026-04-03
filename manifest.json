@@ -1,0 +1,25 @@
+{
+  "name": "노아토익 타이머",
+  "short_name": "노아토익",
+  "description": "토익 RC 시험 최적화 타이머 — Part 5 → 6 → 7 자동 진행",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF7F4",
+  "theme_color": "#E8A0B4",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
